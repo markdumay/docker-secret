@@ -1,5 +1,37 @@
 #!/bin/sh
 
+#======================================================================================================================
+# Title         : create_secret.sh
+# Description   : Create A Docker Secret With User Prompt
+# Author        : Mark Dumay
+# Date          : June 19th, 2020
+# Version       : 1.0.0
+# Usage         : ./create_secret.sh [OPTIONS] SECRET
+# Repository    : https://github.com/markdumay/docker-secret.git
+#======================================================================================================================
+
+#======================================================================================================================
+# Helper Functions
+#======================================================================================================================
+
+# Display usage message
+usage() { 
+    echo "Usage: $0 [OPTIONS] SECRET" 1>&2; 
+    echo "" 1>&2;
+    echo "Create a Docker secret from a prompt as content" 1>&2;
+    echo "" 1>&2;
+    echo "Options:" 1>&2;
+    echo "  -d, --driver string            Secret driver" 1>&2;
+    echo "  -l, --label list               Secret labels" 1>&2;
+    echo "      --template-driver string   Template driver" 1>&2;
+    echo "" 1>&2;
+}
+
+
+#======================================================================================================================
+# Workflow Functions
+#======================================================================================================================
+
 # Read secret string, original code by Susam Pal at https://stackoverflow.com/a/28393320
 read_secret() {
     # Disable echo
@@ -22,18 +54,10 @@ read_secret() {
     echo
 }
 
-# Display usage message
-usage() { 
-    echo "Usage: $0 [OPTIONS] SECRET" 1>&2; 
-    echo "" 1>&2;
-    echo "Create a Docker secret from a prompt as content" 1>&2;
-    echo "" 1>&2;
-    echo "Options:" 1>&2;
-    echo "  -d, --driver string            Secret driver" 1>&2;
-    echo "  -l, --label list               Secret labels" 1>&2;
-    echo "      --template-driver string   Template driver" 1>&2;
-    echo "" 1>&2;
-}
+
+#======================================================================================================================
+# Main Script
+#======================================================================================================================
 
 # Store and validate command-line arguments
 ARGS="$@"
