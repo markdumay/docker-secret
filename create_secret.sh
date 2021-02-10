@@ -4,11 +4,17 @@
 # Title         : create_secret.sh
 # Description   : Create A Docker Secret With User Prompt
 # Author        : Mark Dumay
-# Date          : June 19th, 2020
-# Version       : 1.0.0
+# Date          : February 10th, 2021
+# Version       : 1.0.1
 # Usage         : ./create_secret.sh [OPTIONS] SECRET
 # Repository    : https://github.com/markdumay/docker-secret.git
 #======================================================================================================================
+
+#=======================================================================================================================
+# Variables
+#=======================================================================================================================
+name=''
+
 
 #======================================================================================================================
 # Helper Functions
@@ -42,7 +48,7 @@ read_secret() {
     trap 'stty echo' EXIT
 
     # Read secret
-    read "$@"
+    read -r "$@"
 
     # Enable echo
     stty echo
@@ -59,39 +65,53 @@ read_secret() {
 # Main Script
 #======================================================================================================================
 
-# Store and validate command-line arguments
-ARGS="$@"
-while [ "$1" != "" ]; do
-    case $1 in
-        -d | --driver | -l | --label | --template-driver )
-            shift
-            ;;
-        -h | --help )
-            usage
-            exit
-            ;;
-        -* )
-            usage
-            exit 1
-            ;;
-        * )
-            NAME=$1
-    esac
-    shift
-done
 
-# Validate secret name is provided
-if [ -z "$NAME" ] ; then
-    usage
-    exit 1
-fi
+#=======================================================================================================================
+# Main Script
+#=======================================================================================================================
 
-# Read the secret
-printf "Secret: "
-read_secret secret
+#=======================================================================================================================
+# Entrypoint for the script.
+#=======================================================================================================================
+main() {
+    # Store and validate command-line arguments
+    args="$*"
+    while [ "$1" != "" ]; do
+        case $1 in
+            # note: -d | --driver | -l | --label | --template-driver are passed to 'docker secret create'
+            -d | --driver | -l | --label | --template-driver )
+                shift
+                ;;
+            -h | --help )
+                usage
+                exit
+                ;;
+            -* )
+                usage
+                exit 1
+                ;;
+            * )
+                name="$1"
+        esac
+        shift
+    done
 
-# Pass secret to Docker
+    # Validate secret name is provided
+    if [ -z "${name}" ] ; then
+        usage
+        exit 1
+    fi
+
+    # Read the secret
+    printf "Secret: "
+    secret=''
+    read_secret secret
+
+    # Pass secret to Docker
 ( cat <<EOF
-$secret
+${secret}
 EOF
-) | docker secret create $ARGS -
+) | docker secret create "${args}" -
+}
+
+main "$@"
